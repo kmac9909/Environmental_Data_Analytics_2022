@@ -1,6 +1,6 @@
 ---
 title: "Assignment 1: Introduction"
-author: "Student Name"
+author: "Kathlyn MacDonald"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -22,21 +22,21 @@ The completed exercise is due on <>.
 
 1. What are your previous experiences with data analytics, R, and Git? Include both formal and informal training.
 
-> Answer: 
+> Answer: I do not have any experience with R, but I do have data analysis experience using SPSS and excel. I have also taken coding classes in Python and quite enjoyed it.
 
 2. Are there any components of the course about which you feel confident?
 
-> Answer: 
+> Answer: Nope! All new, but I am excited to figure things out as I go.
 
 3. Are there any components of the course about which you feel apprehensive?
 
-> Answer: 
+> Answer: It will take a bit to get the hang of, but hopefully it will go smoothly. So far I like the video lessons.
 
 
 ## 2) GitHub
 
 Provide a link below to your forked course repository in GitHub. Make sure you have pulled all recent changes from the course repository  and that you have updated your course README file. 
 
-> Answer: 
+> Answer: https://github.com/kmac9909/Environmental_Data_Analytics_2022
 
 
