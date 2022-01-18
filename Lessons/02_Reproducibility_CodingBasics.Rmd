@@ -119,13 +119,15 @@ Importantly, you may never call an R object "data". This word is reserved for a 
 
 Run the first line of code below. Then, type in "long" and press `tab`. What happens?
 
-What happens if there is a typo in your code?
+What happens if there is a typo in your clode?
 Type the following in the R window: 
 Long_name_for_illustration
 longnameforillustration
 
 ```{r}
 long_name_for_illustration <- 11
+
+long_name_for_illustration
 
 ```
 
@@ -135,6 +137,8 @@ Within your R code, it is often useful to include notes about your workflow. So 
 # I am demonstrating a comment here. 
 
 1 + 1 # This is a simple math problem
+
+#1+1
 ```
 
 ### Functions
