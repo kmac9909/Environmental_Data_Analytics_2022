@@ -43,7 +43,7 @@ NTL.nutrient.data.PeterPaul <- filter(NTL.nutrient.data, lakename == "Paul Lake"
 colnames(NTL.nutrient.data.PeterPaul)
 dim(NTL.nutrient.data.PeterPaul)
 str(NTL.nutrient.data.PeterPaul)
-summary(NTL.nutrient.data.PeterPaul$lakename) 
+summary(NTL.nutrient.data.PeterPaul$lakename)
 # Notice that other lake names didn't go away, even though they have zero values
 NTL.nutrient.data.PeterPaul <- droplevels(NTL.nutrient.data.PeterPaul)
 summary(NTL.nutrient.data.PeterPaul$lakename)
@@ -68,8 +68,14 @@ NTL.phys.data.PeterPaul.subset <- select(NTL.phys.data.PeterPaul,
 NTL.nutrient.data.PeterPaul.subset <- select(NTL.nutrient.data.PeterPaul, 
                                              lakename, year4, daynum, month, sampledate, depth:po4)
 
-# write a more succinct line of code to subset the nutrient dataset. 
 
+
+# write a more succinct line of code to subset the nutrient dataset. 
+#NOT WORKING
+NTL.nutrient.data.PeterPaul.subset2 <-
+  NTL.nutrient.data.PeterPaul %>%
+  select(NTL.nutrient.data.PeterPaul, lakename:irradianceDeck) %>%
+  select(NTL.nutrient.data.PeterPaul, lakename, year4, daynum, month)
 ```
 
 
