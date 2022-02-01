@@ -1,6 +1,6 @@
 ---
 title: "Assignment 3: Data Exploration"
-author: "Student Name, Section #0"
+author: "Kathlyn MacDonald, Section #2"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -23,25 +23,32 @@ The completed exercise is due on <>.
 
 1. Check your working directory, load necessary packages (tidyverse), and upload two datasets: the ECOTOX neonicotinoid dataset (ECOTOX_Neonicotinoids_Insects_raw.csv) and the Niwot Ridge NEON dataset for litter and woody debris (NEON_NIWO_Litter_massdata_2018-08_raw.csv). Name these datasets "Neonics" and "Litter", respectively. **Be sure to add the `stringsAsFactors = TRUE` parameter to the function when reading in the CSV files.**
 ```{r,  message = FALSE}
+#Checking the working directory
+getwd()
+#loading packages
+library(tidyverse)
+#loading the data
+Neonics <- read.csv("../Data/Raw/ECOTOX_Neonicotinoids_Insects_raw.csv", stringsAsFactors = TRUE)
 
+Litter <- read.csv("../Data/Raw/NIWO_Litter/NEON_NIWO_Litter_massdata_2018-08_raw.csv", stringsAsFactors = TRUE)
 ```
 
 ## Learn about your system
 
 2. The neonicotinoid dataset was collected from the Environmental Protection Agency's ECOTOX Knowledgebase, a database for ecotoxicology research. Neonicotinoids are a class of insecticides used widely in agriculture. The dataset that has been pulled includes all studies published on insects. Why might we be interested in the ecotoxicologoy of neonicotinoids on insects? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: Neonics are toxic to certain bugs, and keeping track of which insecticides are placed and where is useful for keeping track of species degredation. These pesticides also impact other organismal life, and should be carefully tracked.
 
 3. The Niwot Ridge litter and woody debris dataset was collected from the National Ecological Observatory Network, which collectively includes 81 aquatic and terrestrial sites across 20 ecoclimatic domains. 32 of these sites sample forest litter and woody debris, and we will focus on the Niwot Ridge long-term ecological research (LTER) station in Colorado. Why might we be interested in studying litter and woody debris that falls to the ground in forests? Feel free to do a brief internet search if you feel you need more background information. 
 
-> Answer: 
+> Answer: Tracking the litter/debris that fall to the ground is important for tracking soil quality and ecosystem function. Ecosystem functions that are can be tracked include decomposition, carbon storage and nutrient cycling.These values can help estimate net priary productivity at the plot, site, and continental scale.
 
 4. How is litter and woody debris sampled as part of the NEON network? Read the NEON_Litterfall_UserGuide.pdf document to learn more. List three pieces of salient information about the sampling methods here: 
 
 > Answer: 
-*
-*
-*
+*litter has a diameter of <2cm and length of <50cm, whereas fine wood debris has a diameter of <2cm and a lenght >50cm
+*Used elevated 0.5^2m mesh baskets to trap debris
+*Sampling is done in locations that contain woody vegetation >2m tall
 
 
 
@@ -50,31 +57,37 @@ The completed exercise is due on <>.
 5. What are the dimensions of the dataset?
 
 ```{r}
+dim(Neonics)
 
+#4623 rows, 30 columns
 ```
 
 6. Using the `summary` function on the "Effect" column, determine the most common effects that are studied. Why might these effects specifically be of interest?
 ```{r}
+summary(Neonics$Effect)
 
 ```
 
-> Answer: 
+> Answer: The most common effects that are studied is population and mortality (by far). These are most interesting and thus most studied, because they offer insight on how the neonics effect the species in quesiton. Considering it is a chemical created to reduce insect population, it is understandable that the chemical would effect population levels and mortality rates. 
 
 7. Using the `summary` function, determine the six most commonly studied species in the dataset (common name). What do these species have in common, and why might they be of interest over other insects? Feel free to do a brief internet search for more information if needed.
 
 ```{r}
-
+summary(Neonics$Species.Common.Name)
 ```
 
-> Answer: 
+> Answer: The most studied species are: honey bee, parasitic wasp, buff tailed bumblebee, carniolan honey bee, bumble bee, italian honey bee. Bees are of great importance to the farming community, because they are essential pollinators and the success of the farm is related to the bees ability to pollinate their plants. If pollinators populations go down too far, it would be detrimental to our farming community and thus food system. Parasitic wasps are also an important study species because they are harmful to the bee population and can cause colony collapse.
+
+
 
 8. Concentrations are always a numeric value. What is the class of Conc.1..Author. in the dataset, and why is it not numeric?
 
 ```{r}
 
+class(Neonics$Conc.1..Author.)
 ```
 
-> Answer:
+> Answer: These concentrations are listed as a "factor" data set, so that they can be grouped into categories depending on the concentration. There are many concentrations at the same value, so these can be grouped together.
 
 
 
@@ -83,55 +96,85 @@ The completed exercise is due on <>.
 9. Using `geom_freqpoly`, generate a plot of the number of studies conducted by publication year. 
 ```{r}
 
+ggplot(Neonics, aes(x = Publication.Year)) +
+  geom_freqpoly()
 ```
 
 10. Reproduce the same graph but now add a color aesthetic so that different Test.Location are displayed as different colors.
 ```{r}
 
+  
+ggplot(Neonics,aes(x = Publication.Year, color = Test.Location)) + geom_freqpoly()
+  
+ 
+
 ```
 
 Interpret this graph. What are the most common test locations, and do they differ over time?
 
-> Answer: 
+> Answer: The lab and out in the natural field are the most common locations. Testing in the field peaks earlier (in 2010) compared to in the lab which peaks in ~2015. Both grow over time, but eventually peak and drop in use.
 
 11. Create a bar graph of Endpoint counts. What are the two most common end points, and how are they defined? Consult the ECOTOX_CodeAppendix for more information. 
 
 ```{r}
-
+summary(Neonics$Endpoint)
+ggplot(Neonics, aes(x = Endpoint)) +
+  geom_bar()
 ```
 
-> Answer: 
+> Answer: The two most common endpoints are LOEL and NOEL with  greater than 1500 counts. LOEL is defined in the appendix as the lowest observable effect level (the lowest concentration that produces significant response). NOEL is defined as no observed effect level (the highest cocentration that does not produce significant response).
 >
 
 ## Explore your data (Litter)
 
 12. Determine the class of collectDate. Is it a date? If not, change to a date and confirm the new class of the variable. Using the `unique` function, determine which dates litter was sampled in August 2018. 
 ```{r}
+#Classifying collectDate as a date not a factor
+class(Litter$collectDate)
+Litter$collectDate <- as.Date(Litter$collectDate)
+class(Litter$collectDate)
+
+#What dates was litter sampled in August?
+unique(Litter$collectDate)
 
 ```
+>Answer: August 2nd and 30th
 
 13. Using the `unique` function, determine how many plots were sampled at Niwot Ridge. How is the information obtained from `unique` different from that obtained from `summary`?
 
 ```{r}
+unique(Litter$namedLocation)
 
+summary(Litter$namedLocation)
 ```
 
-> Answer: 
+> Answer: There are 12 different plots that were sampled at Niwot Ridge. The unique function removes all the duplicates from the selected data frame. Using this I am able to find all the different or 'unique' variables in the frame. The summary function, allows you to see the # of cases within each variable
 
 14. Create a bar graph of functionalGroup counts. This shows you what type of litter is collected at the Niwot Ridge sites. Notice that litter types are fairly equally distributed across the Niwot Ridge sites.
 ```{r}
+
+ggplot(Litter, aes(x=functionalGroup)) + 
+  geom_bar()
 
 ```
 
 15. Using `geom_boxplot` and `geom_violin`, create a boxplot and a violin plot of dryMass by functionalGroup. 
 ```{r}
+#boxplot
+ggplot(Litter, aes(y=dryMass, x=functionalGroup)) + 
+  geom_boxplot()
+
+#violin plot
+ggplot(Litter, aes(y=dryMass, x=functionalGroup)) + 
+  geom_violin()
+
 
 ```
 
 Why is the boxplot a more effective visualization option than the violin plot in this case?
 
-> Answer: 
+> Answer: Violin plots allow you to see the density of each functional group at a certain mass. This is not very effective in measuring this data, because the mass is numerical and not categorical, meaning that the mass of each litter item is different for most every case. Because we looking at the plot on a small scale, the violin plot turns out to be a straight line. With the expception leaves and seeds, which have a very small mass, and are counted as zero.The boxplot allows you to see an average distribution. Which is more useful in this case.
 
 What type(s) of litter tend to have the highest biomass at these sites? 
 
-> Answer: 
+> Answer: Needles and then mixed litter
