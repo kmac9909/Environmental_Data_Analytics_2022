@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Kathlyn MacDonald"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -33,15 +33,31 @@ the processed data file for the Niwot Ridge litter dataset (use the [`NEON_NIWO_
 
 ```{r}
 #1 
+getwd()
+setwd("c:/Users/kmac9/OneDrive/Documents/Duke/Year 1/Spring 2022/ENV Data/Environmental_Data_Analytics_2022")
+
+library(tidyverse)
+#install.packages("cowplot")
+library(cowplot)
+
+  Peter.Paul.chem.nutrients <-read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+
+
+NEON.NIWO.litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 
 #2 
+Peter.Paul.chem.nutrients$sampledate <-as.Date(Peter.Paul.chem.nutrients$sampledate, format = "%Y-%m-%d")
 
+
+NEON.NIWO.litter$collectDate <- as.Date(NEON.NIWO.litter$collectDate, format = "%Y-%m-%d")
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
 #3
+
+mytheme <- theme_classic(base_size = 12)+ theme(axis.text = element_text(color = "black"),                                  legend.position = "middle")
 
 ```
 
@@ -53,6 +69,15 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 ```{r}
 #4
 
+NutrientPlot <- 
+  ggplot(Peter.Paul.chem.nutrients, aes(x = tp_ug, y = po4, color = lakename)) +
+  geom_point() +
+  geom_smooth(method= lm, color = "black") +
+   ylim(0,100)+
+  ylab("Phosporus")+
+  xlab("Phosphate (ug)")
+print(NutrientPlot)
+
 ```
 
 
@@ -61,11 +86,49 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 ```{r}
 #5
 
+Peter.Paul.chem.nutrients$month <- as.factor(Peter.Paul.chem.nutrients$month)
+
+TemperaturePlot <- ggplot(Peter.Paul.chem.nutrients) +
+  geom_boxplot(aes(x = month, y = temperature_C, color = lakename)) + xlab(NULL) +
+  ylab("Temperature (C)") +
+  geom_text(x = 1, y = 25,  label = "Temperature")
+  
+#print(TemperaturePlot)
+
+Totalphosphorus <-ggplot(Peter.Paul.chem.nutrients) +
+  geom_boxplot(aes(x= month, y =tp_ug, color = lakename)) +xlab(NULL)+
+  geom_text(x = 1, y = 150,  label = "Total Phosphorous")+
+  ylab("ug")
+
+#print(Totalphosphorus)
+               
+
+Totalnitrogen <-ggplot(Peter.Paul.chem.nutrients) +
+  geom_boxplot(aes(x= month, y = tn_ug, color = lakename)) +
+  geom_text(x = 1, y = 3000,  label = "Total Nitrogen") +
+  xlab("Month") +
+  ylab("ug")
+#print(Totalnitrogen)
+  
+NTL.legend <- get_legend(TemperaturePlot)
+Legend <- get_legend(
+  TemperaturePlot +
+    guides(color = guide_legend(nrow = 1)) +
+    theme(legend.position ="bottom")
+)
+
+plot_grid(TemperaturePlot + theme(legend.position = "none"), Totalphosphorus + theme(legend.position = "none"), Totalnitrogen+ theme(legend.position = "none"), ncol = 1, nrow = 4, align = 'vh', rel_heights= c(3,3,3,0.5), Legend)
+
+
+
+
+
+
 ```
 
 Question: What do you observe about the variables of interest over seasons and between lakes? 
 
-> Answer: 
+> Answer: Peter Lake tends to have higher levels of phosphorus than Paul Lake, throughout the warmer months that data was collected. Nitrogen levels remain fairly steady and similar for both lakes. 
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the "Needles" functional group. Plot the dry mass of needle litter by date and separate by NLCD class with a color aesthetic. (no need to adjust the name of each land use)
 
@@ -74,10 +137,23 @@ Question: What do you observe about the variables of interest over seasons and b
 ```{r}
 #6
 
-#7
+LitterNeedlesPlot <-
+  ggplot(subset(NEON.NIWO.litter, functionalGroup == "Needles"), aes(x=collectDate, y = dryMass, color = nlcdClass))+
+  geom_point()+
+  ylab("Dry Mass") +
+  xlab("Collection Date")
+print(LitterNeedlesPlot)
 
+#7
+LitterNeedlesPlotfaceted <-
+  ggplot(subset(NEON.NIWO.litter, functionalGroup == "Needles"), aes(x=collectDate, y = dryMass))+
+  geom_point()+
+  ylab("Dry Mass") +
+  xlab("Collection Date") +
+  facet_wrap(~nlcdClass)
+print(LitterNeedlesPlotfaceted)
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: The faceted plot is much easier to read, it is hard to distinguish between all the colors when they are mixed together. But seperated out, I can start to see trends and then compare between the classes. Also, you get a lot of overlap in plot 6, which makes it hard to read what is really going on.

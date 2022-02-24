@@ -24,9 +24,33 @@ The completed exercise is due on Monday, Feb 7 @ 7:00pm.
 2. Explore the dimensions, column names, and structure of the datasets. 
 
 ```{r, message = FALSE}
+
+
 #1
+library(tidyverse)
+library(lubridate)
+
+EPA_O3_2018 <- read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv", stringsAsFactors = TRUE)
+EPA_O3_2019 <- read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv", stringsAsFactors = TRUE)
+EPA_PM25_2018 <-read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv", stringsAsFactors = TRUE)
+EPA_PM25_2019 <-read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv", stringsAsFactors = TRUE)
 
 #2
+dim(EPA_O3_2018)
+dim(EPA_O3_2019)
+dim(EPA_PM25_2018)
+dim(EPA_PM25_2019)
+
+colnames(EPA_O3_2018)
+colnames(EPA_O3_2019)
+colnames(EPA_PM25_2018)
+colnames(EPA_PM25_2019)
+
+str(EPA_O3_2018)
+str(EPA_O3_2019)
+str(EPA_PM25_2018)
+str(EPA_PM25_2019)
+
 ```
 
 ## Wrangle individual datasets to create processed files.
@@ -38,11 +62,26 @@ The completed exercise is due on Monday, Feb 7 @ 7:00pm.
 ```{r}
 #3
 
+class(EPA_PM25_2018$Date)
+EPA_O3_2018$Date<-as.Date(EPA_O3_2018$Date, format = "%m/%d/%Y")
+EPA_O3_2019$Date<-as.Date(EPA_O3_2019$Date, format = "%m/%d/%Y")
+EPA_PM25_2018$Date<-as.Date(EPA_PM25_2018$Date, format="%m/%d/%Y")
+EPA_PM25_2019$Date<-as.Date(EPA_PM25_2019$Date, format="%m/%d/%Y")
 #4
+processed_EPA_O3_2018<-select(EPA_O3_2018, Date,DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+processed_EPA_O3_2019<-select(EPA_O3_2019, Date,DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+processed_EPA_PM25_2018<-select(EPA_PM25_2018, Date,DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+processed_EPA_PM25_2019<-select(EPA_PM25_2019, Date,DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
 
 #5
+processed_EPA_PM25_2019$AQS_PARAMETER_DESC<- "PM2.5"
+processed_EPA_PM25_2018$AQS_PARAMETER_DESC <- "PM2.5"
 
 #6
+write.csv(processed_EPA_O3_2018, row.names = FALSE, file = "../Data/Processed/processed_EPA_O3_2018.csv")
+write.csv(processed_EPA_O3_2019, row.names = FALSE, file = "../Data/Processed/processed_EPA_O3_2019.csv" )
+write.csv(processed_EPA_PM25_2018, row.names = FALSE, file = "../Data/Processed/processed_EPA_PM25_2018.csv" )
+write.csv(processed_EPA_PM25_2019, row.names = FALSE, file = "../Data/Processed/processed_EPA_PM25_2019.csv" )
 
 ```
 
@@ -62,14 +101,30 @@ The completed exercise is due on Monday, Feb 7 @ 7:00pm.
 
 ```{r}
 #7
+EPA_PM_O3_2018_2019 <- rbind(processed_EPA_O3_2018,processed_EPA_O3_2019,processed_EPA_PM25_2018,processed_EPA_PM25_2019)
 
 #8
-
+Processed_EPA_PM_O3_2018_2019<-
+  filter(EPA_PM_O3_2018_2019, Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School")) %>%
+  group_by(Date, Site.Name,AQS_PARAMETER_DESC, COUNTY) %>%
+  summarise(Mean.AQI =  
+    mean(EPA_PM_O3_2018_2019$DAILY_AQI_VALUE),
+    Mean.latitude  = mean(EPA_PM_O3_2018_2019$SITE_LATITUDE),
+    Mean.longitude = mean(EPA_PM_O3_2018_2019$SITE_LONGITUDE)
+  ) %>%
+  mutate(month = month(Date)) %>%
+  mutate(year = year(Date))
+  
+  
+  
 #9
+Separate_Processed_EPA_PM_O3_2018_2019 <- pivot_wider(Processed_EPA_PM_O3_2018_2019, names_from = AQS_PARAMETER_DESC, values_from = Mean.AQI)
 
 #10
-
+dim(Separate_Processed_EPA_PM_O3_2018_2019)
 #11
+
+write.csv(Separate_Processed_EPA_PM_O3_2018_2019, row.names = FALSE, file = "../Data/Processed/EPAair_O3_PM25_NC2122_Processed.csv")
 
 ```
 
@@ -84,12 +139,20 @@ The completed exercise is due on Monday, Feb 7 @ 7:00pm.
 
 ```{r}
 #12(a,b)
+Separate_Processed_EPA_PM_O3_2018_2019_2 <- 
+  Separate_Processed_EPA_PM_O3_2018_2019 %>%
+  group_by(Site.Name,month,year) %>%
+  summarise(mean.AQI.O3=mean(Ozone), mean.AQI.PM2.5=  mean(PM2.5)) %>%
+  filter(!is.na(mean.AQI.O3) & !is.na(mean.AQI.PM2.5))
+  
 
 
 #13
+
+dim(Separate_Processed_EPA_PM_O3_2018_2019_2)
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: I couldn't get is.na to work, but that one is the better option because it would allow you to select when both columns contain NA, not just 1.

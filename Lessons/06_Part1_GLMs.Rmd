@@ -16,6 +16,26 @@ editor_options:
 
 ## Generalized Linear Models (GLMs)
 
+~~Lesson notes from 2/14~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if p <0.05 we can reject the null hypothesis
+if p> 0.05 we cannot reject the null hypothesis
+-> p values indicate whether the relationship between X and Y is significant, p is the probability that the null is true (if p is super small, you reject the null)
+
+-regression is a technique for fitting a line to set of data points
+-simple linear delineation allows you to find a linear relationship among variable X and Y
+-Standard error is the measure of the distance between points around a regression line (you can a small se)
+  -correlation (+,-, no correlation)
+-regression coefficient i the slope of the regression line
+-fitted values are estimates of Y obtained from the prediction
+  --> residuals are the difference between predicted (above) and observed
+-R^2 is the measure of % of variability that is explained by independent variable
+  -high R^2 means that the variability is represented
+-Residuals:
+  -check to be sure unbiased estimates
+-you can transform the data (log)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 The analysis of variance (ANOVA), and linear regression are special cases of the **generalized linear model** (GLM). The GLM also includes analyses not covered in this class, including logistic regression, multinomial regression, chi square, and log-linear models. The common characteristic of general linear models is the expression of a continuous response variable as a linear combination of the effects of categorical or continuous explanatory variables, plus an error term that expresses the random error associated with the coefficients of all explanatory variables. The explanatory variables comprise the deterministic component of the model, and the error term comprises the stochastic component of the model. Historically, artificial distinctions were made between linear models that contained categorical and continuous explanatory variables, but this distinction is no longer made. The inclusion of these models within the umbrella of the GLM allows models to fit the main effects of both categorical and continuous explanatory variables as well as their interactions. 
 
 ### Choosing a model from your data: A "cheat sheet"
@@ -39,7 +59,7 @@ The GLM is based on the assumption that the data residuals approximate a normal 
 
 ## Set up
 ```{r, message = FALSE}
-getwd()
+
 library(tidyverse)
 options(scipen = 4)
 
@@ -72,6 +92,7 @@ Important components of the linear regression are the correlation and the R-squa
 For the NTL-LTER dataset, can we predict irradiance (light level) from depth?
 
 ```{r}
+#lm stands for linear model
 irradiance.regression <- lm(PeterPaul.chem.nutrients$irradianceWater ~ PeterPaul.chem.nutrients$depth)
 
 # another way to format the lm() function
@@ -91,9 +112,12 @@ An exploratory option to visualize the model fit is to use the function `plot`. 
 
 1. **Residuals vs. Fitted.** The value predicted by the line of best fit is the fitted value, and the residual is the distance of that actual value from the predicted value. By definition, there will be a balance of positive and negative residuals. Watch for drastic asymmetry from side to side or a marked departure from zero for the red line - these are signs of a poor model fit.
 
-2. **Normal Q-Q.** The points should fall close to the 1:1 line. We often see departures from 1:1 at the high and low ends of the dataset, which could be outliers. 
+2. **Normal Q-Q.** The points should fall close to the 1:1 line. We often see departures from 1:1 at the high and low ends of the dataset, which could be outliers.
+--> sorting data along error
+--> shows the distribution of residuals, you want this to be a straight line
 
 3. **Scale-Location.** Similar to the residuals vs. fitted graph, this will graph the squared standardized residuals by the fitted values. 
+
 
 4. **Residuals vs. Leverage.** This graph will display potential outliers. The values that fall outside the dashed red lines (Cook's distance) are outliers for the model. Watch for drastic departures of the solid red line from horizontal - this is a sign of a poor model fit.
 
@@ -109,14 +133,16 @@ The option best suited for communicating findings is to plot the explanatory and
 # Plot the regression
 irradiancebydepth <- 
   ggplot(PeterPaul.chem.nutrients, aes(x = depth, y = irradianceWater)) +
+  #remove the outlier
   ylim(0, 2000) +
-  geom_point() 
+    geom_point() 
 print(irradiancebydepth) 
 ```
 
-Given the distribution of irradiance values, we don't have a linear relationship between x and y in this case. Let's try log-transforming the irradiance values. Note we also removing the observations that seems to ba an outlier.
+Given the distribution of irradiance values, we don't have a linear relationship between x and y in this case. Let's try log-transforming the irradiance values. Note we also removing the observations that seems to be a an outlier.
 
 ```{r, fig.height = 3, fig.width = 4}
+#cannot run log analysis is any of the values = 0, we need to filter this out
 PeterPaul.chem.nutrients <- filter(PeterPaul.chem.nutrients, 
                                    irradianceWater != 0 & irradianceWater < 5000)
 irradiance.regression2 <- lm(data = PeterPaul.chem.nutrients, log(irradianceWater) ~ depth)
@@ -168,6 +194,8 @@ par(mfrow = c(1,1))
 
 ## Correlation Plots
 We can also make exploratory plots of several continuous data points to determine possible relationships, as well as covariance among explanatory variables. 
+
+The most correlated is narrow and directed to the side. Helps you find which variables are not correlated.
 
 ```{r, fig.height = 3, fig.width = 4}
 #install.packages("corrplot")

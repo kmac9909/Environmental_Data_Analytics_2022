@@ -7,7 +7,10 @@ geometry: margin=2.54cm
 editor_options: 
   chunk_output_type: console
 ---
-
+ANOVA method for determining whether various populations have equal means
+assumes - population variations are equal, populations are normally distributed
+- is variability due to the levels being tested?
+-Assumptions, normal distribution, variance is equal, observations are independent
 ## Objectives
 2. Apply special cases of the GLM (ANOVA) to real datasets
 3. Interpret and report the results of ANOVA in publication-style formats
@@ -15,8 +18,10 @@ editor_options:
 ## Set up
 ```{r, message = FALSE}
 getwd()
+
 library(tidyverse)
-#install.packages("agricolae")
+install.packages("agricolae")
+#install.packages("htmltools")
 library(agricolae)   #you may need to install/update package "htmltools" before installing and loading agricolae
 
 Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
@@ -33,6 +38,8 @@ theme_set(mytheme)
 
 ### One-way ANOVA
 A one-way ANOVA is used when you have one categorical explanatory variable with more than two categories. In R, we can run the model with the function `lm` or `aov`, the latter of which will allow us to run post-hoc tests to determine pairwise differences.
+
+- does the variance change if we categorize into multiple categories?
 
 Does total litter biomass differ among sites at the Niwot Ridge LTER?
 ```{r}
@@ -74,6 +81,7 @@ bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID)
 #results: reject null i.e. variances are not equal
 
 # Format ANOVA as aov
+#very similar to the lm from previous lesson
 Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova)
 
@@ -85,10 +93,11 @@ summary(Litter.Totals.anova2)
 
 # Checking model fit and assumptions
 # ANOVA is robust against departures from normality.
-plot(Litter.Totals.anova2)
+
 
 # Post-hoc test
 # TukeyHSD() computes Tukey Honest Significant Differences
+#takes one main argument
 TukeyHSD(Litter.Totals.anova)
 
 # Extract groupings for pairwise relationships

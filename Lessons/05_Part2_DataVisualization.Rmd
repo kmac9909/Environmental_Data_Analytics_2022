@@ -166,7 +166,9 @@ display.brewer.all(n = 9)
 
 NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
-  geom_point() 
+  geom_point() +
+  
+
 print(NvsP)
 
 # let's first make the plot look better.
