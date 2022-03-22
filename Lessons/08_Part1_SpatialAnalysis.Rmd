@@ -2,7 +2,9 @@
 title: "Spatial Analysis in R, Part 1"
 author: "Environmental Data Analytics | John Fay & Luana Lima"
 date: "Spring 2022"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 editor_options:
   chunk_output_type: console
 ---
@@ -96,6 +98,7 @@ mapview(GasPlants)
 
 
 ## EXERCISE: Creating a spatial dataframe from coordinate columns
+## data has coordinates, but it is not yet in a data frame
 
 ```{r Create a spatial dataframe from coordinate data}
 
@@ -107,7 +110,7 @@ EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC2021_Processed.csv", strin
 EPAair.sites <- EPAair %>% 
   group_by(Site.Name, COUNTY, SITE_LATITUDE, SITE_LONGITUDE) %>% 
   summarize(
-    mean_Ozone = mean(Ozone, na.rm=T),    #What does "na.rm=T" do? Is it necessary?
+    mean_Ozone = mean(Ozone, na.rm=T),    #What does "na.rm=T" do? Is it necessary? 
     mean_PM25 = mean(PM2.5, na.rm=T),
     count_all = n(),
     count_Ozone = sum(!is.na(Ozone)),
@@ -117,9 +120,17 @@ EPAair.sites <- EPAair %>%
 EPAair.sf <- EPAair.sites %>% 
   st_as_sf(coords = c('SITE_LONGITUDE','SITE_LATITUDE'),
            crs=4326)
-
+#Where x= longitude and y = latitude
 #View the data using the methods above...
 
+#View using sf plot
+plot(EPAair.sf,pch=16)
+
+#View using ggplot
+ggplot(data=EPAair.sf) + geom_sf()
+
+#View using mapview
+mapview(EPAair.sf)
 ```
 
 ### EXERCISE: Creating a spatial dataframe from known coordinates
@@ -131,7 +142,7 @@ class(sfg_GraingerHall)
 mapview(sfg_GraingerHall)
 
 #Upgrade to a simple feature geometry column by adding a crs 
-sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326)
+sfc_GraingerHall <- st_sfc(sfg_GraingerHall,crs=4326) #4326 says that it is lat/long (coordinate reference system)
 class(sfc_GraingerHall)
 mapview(sfc_GraingerHall)
 
@@ -149,6 +160,7 @@ So, we see that our "sf" dataframe works much like our familiar dataframe, only 
 
 # 3. COORDINATE REFERENCE SYSTEMS
 Each of the above datasets we explored use lat/long coordinates in defining their geometries. We actually specify that these use lat/long coordinate when creating them via the `crs = 4326` parameter you see in the examples. But what is "4326"?? And what is the significance of this? 
+#coordinates are good for locating on maps, need to convert to another system to determine distance
 
 Let's explore:
 
