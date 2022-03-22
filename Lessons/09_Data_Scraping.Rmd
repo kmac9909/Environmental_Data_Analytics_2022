@@ -331,7 +331,7 @@ the_facility_ids_subset <-  sample(the_facility_ids,20)
 the_years <- rep.int(2020,length(the_facility_ids_subset))
 
 #"Map" the "scrape.it" function to retrieve data for all these
-dfs_2020 <- map2(the_years, the_facility_ids_subset, scrape.it) 
+dfs_2020 <- map2(the_years, the_facility_ids_subset, scrape.it)
 
 #Conflate the returned list of dataframes into a single one
 df_2020 <- bind_rows(dfs_2020)
