@@ -206,7 +206,7 @@ Specific tests for monotonic trend analysis are listed below, with assumptions a
 
 Specific test for stochastic trend analysis:
 
-* **Augmented Dickey Fuller**: no seasonality, non-parametric, missing data not allowed. Function: `adf.test()` (package: tseries)
+* **Augmented Dickey Fuller**: no seasonality, non-parametric, missing data not allowed. Function: `adf.test()` (package: tseries). Only test to determine if stochastic
 
 
 #### Example: monotonic trend analysis
